@@ -19,7 +19,7 @@ fig, ax1 = plt.subplots(figsize=(10,5))
 
 sns.lineplot(x=df['hr'], y=df['cnt_hourly'], marker='o', label='Peminjaman Per Jam', ax=ax1, color='b')
 ax2 = ax1.twinx()
-sns.lineplot(x=df['hr'], y=df['cnt_daily'], marker='o', label='Total Peminjaman Harian', ax=ax2, color='r')
+sns.lineplot(x=df['hr'], y=df['cnt_day'], marker='o', label='Total Peminjaman Harian', ax=ax2, color='r')
 
 ax1.set_xlabel("Jam")
 ax1.set_ylabel("Jumlah Peminjaman Per Jam", color='b')
