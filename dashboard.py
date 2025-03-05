@@ -26,14 +26,13 @@ min_date = merged_df["dteday"].min()
 max_date = merged_df["dteday"].max()
 date_range = st.sidebar.date_input("Pilih Rentang Tanggal", [min_date, max_date], min_value=min_date, max_value=max_date)
 
-# Filter cuaca
-weather_mapping = {1:"Spring", 2:"Summer", 3:"Fall",4:"Winter"}
-selected_weather = st.sidebar.multiselect("Pilih Cuaca", options=weather_mapping.keys(), format_func=lambda x: weather_mapping[x], default=list(weather_mapping.keys()))
+season_mapping = {1:"Spring", 2:"Summer", 3:"Fall",4:"Winter"}
+selected_season = st.sidebar.multiselect("Pilih Cuaca", options=season_mapping.keys(), format_func=lambda x: season_mapping[x], default=list(season_mapping.keys()))
 
 # Filter dataset berdasarkan input pengguna
 filtered_df = merged_df[(merged_df["dteday"] >= pd.to_datetime(date_range[0])) & 
                         (merged_df["dteday"] <= pd.to_datetime(date_range[1])) &
-                        (merged_df["season"].isin(selected_weather))]
+                        (merged_df["season"].isin(selected_season))]
 
 # Analisis kontribusi peminjaman per jam
 filtered_df['hourly_ratio'] = filtered_df['cnt_hourly'] / filtered_df['cnt_day']
