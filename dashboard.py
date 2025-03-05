@@ -27,13 +27,13 @@ max_date = merged_df["dteday"].max()
 date_range = st.sidebar.date_input("Pilih Rentang Tanggal", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 # Filter cuaca
-weather_mapping = {1: "Cerah", 2: "Kabut + Berawan", 3: "Salju Ringan, Hujan Ringan", 4: "Hujan Lebat + Butiran Es"}
+weather_mapping = {1:"Spring", 2:"Summer", 3:"Fall",4:"Winter"}
 selected_weather = st.sidebar.multiselect("Pilih Cuaca", options=weather_mapping.keys(), format_func=lambda x: weather_mapping[x], default=list(weather_mapping.keys()))
 
 # Filter dataset berdasarkan input pengguna
 filtered_df = merged_df[(merged_df["dteday"] >= pd.to_datetime(date_range[0])) & 
                         (merged_df["dteday"] <= pd.to_datetime(date_range[1])) &
-                        (merged_df["weathersit"].isin(selected_weather))]
+                        (merged_df["season"].isin(selected_weather))]
 
 # Analisis kontribusi peminjaman per jam
 filtered_df['hourly_ratio'] = filtered_df['cnt_hourly'] / filtered_df['cnt_day']
@@ -50,14 +50,14 @@ ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
 ax1.grid()
 st.pyplot(fig1)
 
-st.subheader("🌦️ Total Peminjaman Sepeda Berdasarkan Cuaca")
+st.subheader("🌦️ Total Bike Rentals by Season")
 fig2, ax2 = plt.subplots(figsize=(8, 5))
-sns.barplot(x=filtered_df["weathersit"], y=filtered_df["cnt_day"], hue=filtered_df["weathersit"], palette="coolwarm", dodge=False, ax=ax2)
-ax2.set_title("Total Peminjaman Sepeda Berdasarkan Cuaca")
-ax2.set_xlabel("Cuaca")
-ax2.set_ylabel("Jumlah Peminjaman")
-ax2.set_xticks(ticks=[0,1,2,3])
-ax2.set_xticklabels(["Cerah", "Kabut + Berawan", "Salju Ringan, Hujan Ringan", "Hujan Lebat + Butiran Es"], rotation=25)
+sns.barplot(x=filtered_df["season"], y=filtered_df["cnt_day"], hue=filtered_df["season"], palette="coolwarm", dodge=False, ax=ax2)
+ax2.set_title("Total Bike Rentals by Season")
+ax2.set_xlabel("Season")
+ax2.set_ylabel("Total Rentals")
+ax2.set_xticks([0, 1, 2, 3])
+ax2.set_xticklabels(["Spring", "Summer", "Fall", "Winter"], rotation=25)
 st.pyplot(fig2)
 
 # Footer
