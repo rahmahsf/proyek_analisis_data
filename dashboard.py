@@ -49,7 +49,7 @@ ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
 ax1.grid()
 st.pyplot(fig1)
 
-st.subheader("🌦️ Total Bike Rentals by Season")
+st.subheader("🌦️ Total Peminjaman Sepeda Berdasarkan musim")
 
 filtered_seasons = sorted(filtered_df["season"].unique())  
 filtered_labels = [season_mapping[s] for s in filtered_seasons]
@@ -66,11 +66,11 @@ sns.barplot(
     order=filtered_seasons  
 )
 
-ax2.set_xticklabels(filtered_labels, rotation=25)
+ax2.set_xticklabels(filtered_labels)
 
-ax2.set_title("Total Bike Rentals by Season")
-ax2.set_xlabel("Season")
-ax2.set_ylabel("Total Rentals")
+ax2.set_title("Total Peminjaman Sepeda Berdasarkan musim")
+ax2.set_xlabel("Musim")
+ax2.set_ylabel("Jumlah Peminjaman")
 st.pyplot(fig2)
 # Footer
 st.markdown("""
