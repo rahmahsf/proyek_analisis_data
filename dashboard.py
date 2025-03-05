@@ -12,18 +12,29 @@ merged_df = load_data()
 
 # Judul Aplikasi
 st.title("Analisis Peminjaman Sepeda")
-st.subheader("Distribusi Peminjaman Sepeda Per Jam vs Total Harian")
 
-# Visualisasi Data
+
 merged_df['hourly_ratio'] = merged_df['cnt_hourly'] / merged_df['cnt_day']
-
 hourly_avg_ratio = merged_df.groupby('hr')['hourly_ratio'].mean()
 
-plt.figure(figsize=(10, 5))
-sns.lineplot(x=hourly_avg_ratio.index, y=hourly_avg_ratio.values, marker="o", color="b")
-plt.xticks(range(0, 24))
-plt.title("Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
-plt.xlabel("Jam")
-plt.ylabel("Rasio Peminjaman terhadap Total Harian")
-plt.grid()
-plt.show()
+# Line Chart: Rata-rata kontribusi peminjaman sepeda per jam
+st.subheader("Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
+fig1, ax1 = plt.subplots(figsize=(10, 5))
+sns.lineplot(x=hourly_avg_ratio.index, y=hourly_avg_ratio.values, marker="o", color="b", ax=ax1)
+ax1.set_xticks(range(0, 24))
+ax1.set_title("Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
+ax1.set_xlabel("Jam")
+ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
+ax1.grid()
+st.pyplot(fig1)
+
+# Bar Chart: Total peminjaman sepeda berdasarkan musim
+st.subheader("Total Peminjaman Sepeda Berdasarkan Musim")
+fig2, ax2 = plt.subplots(figsize=(8, 5))
+sns.barplot(x=merged_df["season"], y=merged_df["cnt_day"], hue=merged_df["season"], palette="coolwarm", dodge=False, ax=ax2)
+ax2.set_title("Total Peminjaman Sepeda Berdasarkan Musim")
+ax2.set_xlabel("Musim")
+ax2.set_ylabel("Jumlah Peminjaman")
+ax2.set_xticks(ticks=[0,1,2,3])
+ax2.set_xticklabels(["Cerah", "Kabut + Berawan", "Salju Ringan, Hujan Ringan", "Hujan Lebat + Butiran Es"], rotation=25)
+st.pyplot(fig2)
