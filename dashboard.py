@@ -27,7 +27,7 @@ max_date = merged_df["dteday"].max()
 date_range = st.sidebar.date_input("Pilih Rentang Tanggal", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 season_mapping = {1:"Spring", 2:"Summer", 3:"Fall",4:"Winter"}
-selected_season = st.sidebar.multiselect("Pilih Cuaca", options=season_mapping.keys(), format_func=lambda x: season_mapping[x], default=list(season_mapping.keys()))
+selected_season = st.sidebar.multiselect("Pilih Musim", options=season_mapping.keys(), format_func=lambda x: season_mapping[x], default=list(season_mapping.keys()))
 
 # Filter dataset berdasarkan input pengguna
 filtered_df = merged_df[(merged_df["dteday"] >= pd.to_datetime(date_range[0])) & 
@@ -50,18 +50,30 @@ ax1.grid()
 st.pyplot(fig1)
 
 st.subheader("🌦️ Total Bike Rentals by Season")
+
+filtered_seasons = sorted(filtered_df["season"].unique())  
+filtered_labels = [season_mapping[s] for s in filtered_seasons]
+
+
 fig2, ax2 = plt.subplots(figsize=(8, 5))
-sns.barplot(x=filtered_df["season"], y=filtered_df["cnt_day"], hue=filtered_df["season"], palette="coolwarm", dodge=False, ax=ax2)
+sns.barplot(
+    x=filtered_df["season"], 
+    y=filtered_df["cnt_day"], 
+    hue=filtered_df["season"], 
+    palette="coolwarm", 
+    dodge=False, 
+    ax=ax2,
+    order=filtered_seasons  
+)
+
+ax2.set_xticklabels(filtered_labels, rotation=25)
+
 ax2.set_title("Total Bike Rentals by Season")
 ax2.set_xlabel("Season")
 ax2.set_ylabel("Total Rentals")
-ax2.set_xticks([0, 1, 2, 3])
-ax2.set_xticklabels(["Spring", "Summer", "Fall", "Winter"], rotation=25)
 st.pyplot(fig2)
-
 # Footer
 st.markdown("""
 ---
-🚴 **Bike Sharing Analysis** | © 2025 Rahmah Sary Fadiyah  
-Data diperoleh dari sistem peminjaman sepeda yang dianalisis menggunakan Python & Streamlit.
+ **Bike Sharing Analysis** | © 2025 Rahmah Sary Fadiyah  
 """)
