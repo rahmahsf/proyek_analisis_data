@@ -3,22 +3,44 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Konfigurasi halaman
+st.set_page_config(page_title="Analisis Peminjaman Sepeda", page_icon="🚴")
+
 # Load dataset (pastikan merged_df sudah tersedia)
 @st.cache_data
 def load_data():
-    return pd.read_csv("main_data.csv")
+    df = pd.read_csv("main_data.csv")
+    df['dteday'] = pd.to_datetime(df['dteday'])  # Konversi kolom tanggal
+    return df
 
 merged_df = load_data()
 
 # Judul Aplikasi
-st.title("Analisis Peminjaman Sepeda")
+st.title("📊 Analisis Peminjaman Sepeda 🚴")
+
+# Sidebar untuk filter interaktif
+st.sidebar.header("🔍 Filter Data")
+
+# Filter tanggal
+min_date = merged_df["dteday"].min()
+max_date = merged_df["dteday"].max()
+date_range = st.sidebar.date_input("Pilih Rentang Tanggal", [min_date, max_date], min_value=min_date, max_value=max_date)
+
+# Filter cuaca
+weather_mapping = {1: "Cerah", 2: "Kabut + Berawan", 3: "Salju Ringan, Hujan Ringan", 4: "Hujan Lebat + Butiran Es"}
+selected_weather = st.sidebar.multiselect("Pilih Cuaca", options=weather_mapping.keys(), format_func=lambda x: weather_mapping[x], default=list(weather_mapping.keys()))
+
+# Filter dataset berdasarkan input pengguna
+filtered_df = merged_df[(merged_df["dteday"] >= pd.to_datetime(date_range[0])) & 
+                        (merged_df["dteday"] <= pd.to_datetime(date_range[1])) &
+                        (merged_df["weathersit"].isin(selected_weather))]
+
+# Analisis kontribusi peminjaman per jam
+filtered_df['hourly_ratio'] = filtered_df['cnt_hourly'] / filtered_df['cnt_day']
+hourly_avg_ratio = filtered_df.groupby('hr')['hourly_ratio'].mean()
 
 
-merged_df['hourly_ratio'] = merged_df['cnt_hourly'] / merged_df['cnt_day']
-hourly_avg_ratio = merged_df.groupby('hr')['hourly_ratio'].mean()
-
-# Line Chart: Rata-rata kontribusi peminjaman sepeda per jam
-st.subheader("Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
+st.subheader("📈 Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
 fig1, ax1 = plt.subplots(figsize=(10, 5))
 sns.lineplot(x=hourly_avg_ratio.index, y=hourly_avg_ratio.values, marker="o", color="b", ax=ax1)
 ax1.set_xticks(range(0, 24))
@@ -28,18 +50,19 @@ ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
 ax1.grid()
 st.pyplot(fig1)
 
-# Bar Chart: Total peminjaman sepeda berdasarkan musim
-st.subheader("Total Peminjaman Sepeda Berdasarkan Musim")
+st.subheader("🌦️ Total Peminjaman Sepeda Berdasarkan Cuaca")
 fig2, ax2 = plt.subplots(figsize=(8, 5))
-sns.barplot(x=merged_df["season"], y=merged_df["cnt_day"], hue=merged_df["season"], palette="coolwarm", dodge=False, ax=ax2)
-ax2.set_title("Total Peminjaman Sepeda Berdasarkan Musim")
-ax2.set_xlabel("Musim")
+sns.barplot(x=filtered_df["weathersit"], y=filtered_df["cnt_day"], hue=filtered_df["weathersit"], palette="coolwarm", dodge=False, ax=ax2)
+ax2.set_title("Total Peminjaman Sepeda Berdasarkan Cuaca")
+ax2.set_xlabel("Cuaca")
 ax2.set_ylabel("Jumlah Peminjaman")
 ax2.set_xticks(ticks=[0,1,2,3])
 ax2.set_xticklabels(["Cerah", "Kabut + Berawan", "Salju Ringan, Hujan Ringan", "Hujan Lebat + Butiran Es"], rotation=25)
 st.pyplot(fig2)
 
+# Footer
 st.markdown("""
 ---
-© 2025 Bike Sharing Analysis.Rahmah Sary Fadiyah.
+🚴 **Bike Sharing Analysis** | © 2025 Rahmah Sary Fadiyah  
+Data diperoleh dari sistem peminjaman sepeda yang dianalisis menggunakan Python & Streamlit.
 """)
