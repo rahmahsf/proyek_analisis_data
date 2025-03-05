@@ -38,3 +38,8 @@ ax2.set_ylabel("Jumlah Peminjaman")
 ax2.set_xticks(ticks=[0,1,2,3])
 ax2.set_xticklabels(["Cerah", "Kabut + Berawan", "Salju Ringan, Hujan Ringan", "Hujan Lebat + Butiran Es"], rotation=25)
 st.pyplot(fig2)
+
+st.markdown("""
+---
+© 2025 Bike Sharing Analysis.Rahmah Sary Fadiyah.
+""")
