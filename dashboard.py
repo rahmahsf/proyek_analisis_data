@@ -35,51 +35,50 @@ filtered_df = merged_df[
 ]
 total_filtered_data = filtered_df.shape[0]
 
-filtered_df['hourly_ratio'] = filtered_df['cnt_hourly'] / filtered_df['cnt_day']
-hourly_avg_ratio = filtered_df.groupby('hr')['hourly_ratio'].mean()
+# Perhitungan kontribusi per jam terhadap total harian
+if "cnt_hourly" in filtered_df.columns:
+    filtered_df["hourly_ratio"] = filtered_df["cnt_hourly"] / filtered_df["cnt_day"]
+    hourly_avg_ratio = filtered_df.groupby("hr")["hourly_ratio"].mean()
 
-st.subheader("📈 Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
-st.write(f"Total data yang digunakan: **{total_filtered_data}**")
+    st.subheader("📈 Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
+    st.write(f"Total data yang digunakan: **{total_filtered_data}**")
 
-fig1, ax1 = plt.subplots(figsize=(10, 5))
-sns.lineplot(x=hourly_avg_ratio.index, y=hourly_avg_ratio.values, marker="o", color="#2a9df4", ax=ax1)
-ax1.set_xticks(range(0, 24))
-ax1.set_title("Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
-ax1.set_xlabel("Jam")
-ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
-ax1.grid()
-st.pyplot(fig1)
+    fig1, ax1 = plt.subplots(figsize=(10, 5))
+    sns.lineplot(x=hourly_avg_ratio.index, y=hourly_avg_ratio.values, marker="o", color="#2a9df4", ax=ax1)
+    ax1.set_xticks(range(0, 24))
+    ax1.set_title("Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
+    ax1.set_xlabel("Jam")
+    ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
+    ax1.grid()
+    st.pyplot(fig1)
 
+# Visualisasi total peminjaman berdasarkan musim
 st.subheader("🌦️ Total Peminjaman Sepeda Berdasarkan Musim")
 
-# Hitung total peminjaman per musim
 season_counts = filtered_df.groupby("season")["cnt_day"].sum().reset_index()
-season_counts = season_counts.sort_values(by="cnt_day")
 
-# Mapping warna baru
-season_colors = ["#2a9df4", "#187bcd", "#1167b1", "#03254c"]
-color_map_new = {season: season_colors[i] for i, season in enumerate(season_counts["season"])}
+# Warna berdasarkan jumlah peminjaman (paling tua untuk tertinggi)
+season_colors = ['#00B4D8', '#0096C7', '#0077B6', '#023E8A']
+season_counts_sorted = season_counts.sort_values(by="cnt_day", ascending=True)  # Urut dari peminjaman terendah ke tertinggi
+color_map = {season: season_colors[i] for i, season in enumerate(season_counts_sorted["season"])}
 
-# Visualisasi total peminjaman per musim
 fig2, ax2 = plt.subplots(figsize=(8, 5))
 sns.barplot(
-    x=season_counts["season"], 
-    y=season_counts["cnt_day"], 
-    hue=season_counts["season"],  
-    palette=color_map_new,
-    dodge=False, 
+    x=season_counts["season"].map(season_mapping),  # Tetap sesuai urutan default
+    y=season_counts["cnt_day"],  
+    palette=[color_map[season] for season in season_counts["season"]],  
     ax=ax2
 )
 
-ax2.set_xticklabels([season_mapping[s] for s in season_counts["season"]])
+# Tambahkan label pada tiap bar
+for p, total in zip(ax2.patches, season_counts["cnt_day"]):
+    ax2.annotate(f"{int(total)}", 
+                 (p.get_x() + p.get_width() / 2, p.get_height()), 
+                 ha='center', va='bottom', fontsize=12, fontweight="bold")
+
 ax2.set_title("Total Peminjaman Sepeda Berdasarkan Musim")
 ax2.set_xlabel("Musim")
 ax2.set_ylabel("Jumlah Peminjaman")
-
-for p, total in zip(ax2.patches, season_counts["cnt_day"]):
-    ax2.annotate(f"{int(total)}", 
-                  (p.get_x() + p.get_width() / 2, p.get_height()), 
-                  ha='center', va='bottom', fontsize=12, fontweight="bold")
 
 st.pyplot(fig2)
 
