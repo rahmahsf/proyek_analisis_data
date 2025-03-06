@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Konfigurasi halaman
 st.set_page_config(page_title="Analisis Peminjaman Sepeda", page_icon="🚴")
 
 # Load dataset
@@ -20,8 +19,6 @@ st.title("📊 Analisis Peminjaman Sepeda 🚴")
 
 # Sidebar untuk filter interaktif
 st.sidebar.header("🔍 Filter Data")
-
-# Filter tanggal
 min_date = merged_df["dteday"].min()
 max_date = merged_df["dteday"].max()
 date_range = st.sidebar.date_input("Pilih Rentang Tanggal", [min_date, max_date], min_value=min_date, max_value=max_date)
@@ -36,15 +33,11 @@ filtered_df = merged_df[
     (merged_df["dteday"] <= pd.to_datetime(date_range[1])) &
     (merged_df["season"].isin(selected_season))
 ]
-
-# Hitung total jumlah data setelah filter
 total_filtered_data = filtered_df.shape[0]
 
-# Analisis kontribusi peminjaman per jam
 filtered_df['hourly_ratio'] = filtered_df['cnt_hourly'] / filtered_df['cnt_day']
 hourly_avg_ratio = filtered_df.groupby('hr')['hourly_ratio'].mean()
 
-# Visualisasi rata-rata kontribusi per jam
 st.subheader("📈 Rata-rata Kontribusi Peminjaman Sepeda per Jam terhadap Total Harian")
 st.write(f"Total data yang digunakan: **{total_filtered_data}**")
 
@@ -57,7 +50,6 @@ ax1.set_ylabel("Rasio Peminjaman terhadap Total Harian")
 ax1.grid()
 st.pyplot(fig1)
 
-# Analisis total peminjaman berdasarkan musim
 st.subheader("🌦️ Total Peminjaman Sepeda Berdasarkan Musim")
 
 # Hitung total peminjaman per musim
@@ -74,7 +66,7 @@ sns.barplot(
     x=season_counts["season"], 
     y=season_counts["cnt_day"], 
     hue=season_counts["season"],  
-    palette=color_map_new,  # Warna diperbaiki
+    palette=color_map_new,
     dodge=False, 
     ax=ax2
 )
@@ -84,7 +76,6 @@ ax2.set_title("Total Peminjaman Sepeda Berdasarkan Musim")
 ax2.set_xlabel("Musim")
 ax2.set_ylabel("Jumlah Peminjaman")
 
-# Menampilkan angka total peminjaman di atas tiap bar
 for p, total in zip(ax2.patches, season_counts["cnt_day"]):
     ax2.annotate(f"{int(total)}", 
                   (p.get_x() + p.get_width() / 2, p.get_height()), 
